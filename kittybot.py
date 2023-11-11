@@ -1,7 +1,19 @@
+import requests
 from telegram.ext import CommandHandler, Filters, MessageHandler, Updater
 from telegram import ReplyKeyboardMarkup
 
 updater = Updater(token='6343280383:AAFNKMEitLvnscYQkiO_aSHwyLlGEt2mnUo')
+URL = 'https://api.thecatapi.com/v1/images/search'
+
+
+def get_new_image():
+    response = requests.get(URL).json()
+    return response[0].get('url')
+
+
+def new_cat(update, context):
+    chat = update.effective_chat
+    context.bot.send_photo(chat.id, get_new_image())
 
 
 def say_hi(update, context):
@@ -18,19 +30,22 @@ def wake_up(update, context):
     # Каждый вложенный список определяет
     # новый ряд кнопок в интерфейсе бота.
     # Здесь описаны две кнопки в первом ряду и одна - во втором.
-    buttons = ReplyKeyboardMarkup([
-        ['Который час?', 'Определи мой ip'],
-        ['/random_digit']
-    ])
+    # buttons = ReplyKeyboardMarkup([
+    #     ['Который час?', 'Определи мой ip'],
+    #     ['/random_digit']
+    # ])
+    # За счёт параметра resize_keyboard=True сделаем кнопки поменьше
+    button = ReplyKeyboardMarkup([['/newcat']], resize_keyboard=True)
     context.bot.send_message(
         chat_id=chat.id,
-        text='Спасибо, что вы включили меня, {}!'.format(name),
-        # Добавим кнопку в содержимое отправляемого сообщения
-        reply_markup=buttons
-        )
+        text='Привет, {}. Посмотри, какого котика я тебе нашёл'.format(name),
+        reply_markup=button
+    )
+    context.bot.send_photo(chat.id, get_new_image())
 
 
 updater.dispatcher.add_handler(CommandHandler('start', wake_up))
+updater.dispatcher.add_handler(CommandHandler('newcat', new_cat))
 
 updater.dispatcher.add_handler(MessageHandler(Filters.text, say_hi))
 
