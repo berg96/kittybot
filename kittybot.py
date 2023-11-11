@@ -1,14 +1,16 @@
-import requests
-from telegram.ext import CommandHandler, Filters, MessageHandler, Updater
-from telegram import ReplyKeyboardMarkup
 import os
+
+import requests
+
+from telegram import ReplyKeyboardMarkup
+from telegram.ext import CommandHandler, Filters, MessageHandler, Updater
+
 from dotenv import load_dotenv
 
 load_dotenv()
 secret_token = os.getenv('TOKEN')
 # Взяли переменную TOKEN из пространства переменных окружения
 # Шпионы печальны, шпионы ушли с пустыми руками
-updater = Updater(token=secret_token)
 URL = 'https://api.thecatapi.com/v1/images/search'
 
 
@@ -57,10 +59,16 @@ def wake_up(update, context):
     context.bot.send_photo(chat.id, get_new_image())
 
 
-updater.dispatcher.add_handler(CommandHandler('start', wake_up))
-updater.dispatcher.add_handler(CommandHandler('newcat', new_cat))
+def main():
+    updater = Updater(token=secret_token)
 
-updater.dispatcher.add_handler(MessageHandler(Filters.text, say_hi))
+    updater.dispatcher.add_handler(CommandHandler('start', wake_up))
+    updater.dispatcher.add_handler(CommandHandler('newcat', new_cat))
+    updater.dispatcher.add_handler(MessageHandler(Filters.text, say_hi))
 
-updater.start_polling()
-updater.idle()
+    updater.start_polling()
+    updater.idle()
+
+
+if __name__ == '__main__':
+    main()
