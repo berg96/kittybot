@@ -1,8 +1,14 @@
 import requests
 from telegram.ext import CommandHandler, Filters, MessageHandler, Updater
 from telegram import ReplyKeyboardMarkup
+import os
+from dotenv import load_dotenv
 
-updater = Updater(token='6343280383:AAFNKMEitLvnscYQkiO_aSHwyLlGEt2mnUo')
+load_dotenv()
+secret_token = os.getenv('TOKEN')
+# Взяли переменную TOKEN из пространства переменных окружения
+# Шпионы печальны, шпионы ушли с пустыми руками
+updater = Updater(token=secret_token)
 URL = 'https://api.thecatapi.com/v1/images/search'
 
 
@@ -18,7 +24,7 @@ def new_cat(update, context):
 
 def say_hi(update, context):
     chat = update.effective_chat
-    context.bot.send_message(chat_id=chat.id,text='Привет, я KittyBot!')
+    context.bot.send_message(chat_id=chat.id, text='Привет, я KittyBot!')
 
 
 def wake_up(update, context):
