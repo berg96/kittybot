@@ -12,8 +12,12 @@ def wake_up(update, context):
     # В ответ на команду /start 
     # будет отправлено сообщение 'Спасибо, что включили меня'
     chat = update.effective_chat
-    context.bot.send_message(chat_id=chat.id, 
-                             text='Спасибо, что включили меня')
+    name = update.message.chat.first_name
+    print(update)
+    context.bot.send_message(
+        chat_id=chat.id,
+        text='Спасибо, что включили меня, {}!'.format(name)
+    )
 
 
 # Регистрируется обработчик CommandHandler;
