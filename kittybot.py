@@ -16,15 +16,19 @@ logging.basicConfig(
 )
 # Взяли переменную TOKEN из пространства переменных окружения
 # Шпионы печальны, шпионы ушли с пустыми руками
-URL = 'https://api.thecatapi.com/v1/images/search'
+CAT_URL = 'https://api.thecatapi.com/v1/images/search'
+DOG_URL = 'https://api.thedogapi.com/v1/images/search'
 
 
-def get_new_image():
+def get_new_image(url):
     try:
-        response = requests.get(URL)
+        response = requests.get(url)
     except Exception as error:
         logging.error(f'Ошибка при запросе к основному API: {error}')
-        new_url = 'https://api.thedogapi.com/v1/images/search'
+        if url == DOG_URL:
+            new_url = CAT_URL
+        else:
+            new_url = DOG_URL
         response = requests.get(new_url)
 
     response = response.json()
@@ -33,7 +37,12 @@ def get_new_image():
 
 def new_cat(update, context):
     chat = update.effective_chat
-    context.bot.send_photo(chat.id, get_new_image())
+    context.bot.send_photo(chat.id, get_new_image(CAT_URL))
+
+
+def new_dog(update, context):
+    chat = update.effective_chat
+    context.bot.send_photo(chat.id, get_new_image(DOG_URL))
 
 
 def say_hi(update, context):
@@ -55,13 +64,18 @@ def wake_up(update, context):
     #     ['/random_digit']
     # ])
     # За счёт параметра resize_keyboard=True сделаем кнопки поменьше
-    button = ReplyKeyboardMarkup([['/newcat']], resize_keyboard=True)
+    buttons = ReplyKeyboardMarkup(
+        [
+            ['/newcat', '/newdog']
+        ],
+        resize_keyboard=True
+    )
     context.bot.send_message(
         chat_id=chat.id,
         text='Привет, {}. Посмотри, какого котика я тебе нашёл'.format(name),
-        reply_markup=button
+        reply_markup=buttons
     )
-    context.bot.send_photo(chat.id, get_new_image())
+    context.bot.send_photo(chat.id, get_new_image(CAT_URL))
 
 
 def main():
@@ -69,6 +83,7 @@ def main():
 
     updater.dispatcher.add_handler(CommandHandler('start', wake_up))
     updater.dispatcher.add_handler(CommandHandler('newcat', new_cat))
+    updater.dispatcher.add_handler(CommandHandler('newdog', new_dog))
     updater.dispatcher.add_handler(MessageHandler(Filters.text, say_hi))
 
     updater.start_polling()
